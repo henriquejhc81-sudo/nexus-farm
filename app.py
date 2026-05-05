@@ -55,13 +55,13 @@ with st.sidebar:
 
 # --- ÁREA PRINCIPAL ---
 st.title("⚡ Nexus OmniCode")
-st.caption("Central Suprema de Inteligência em Código - Acesso Livre")
+st.caption("Central Suprema de Inteligência em Código - Versão Multi-Formato")
 
 col_in, col_out = st.columns(2)
 
 with col_in:
     st.subheader("📥 Entrada")
-    user_input = st.text_area("Descreva sua ideia ou cole o código:", height=300, placeholder="Ex: Crie um sistema de gestão de vendas para drogaria...")
+    user_input = st.text_area("Descreva sua ideia ou cole o código:", height=300, placeholder="Ex: Crie um sistema de gestão de vendas...")
     upload = st.file_uploader("Upload de arquivo para análise", type=['py', 'js', 'html', 'txt', 'sql', 'css'])
 
 with col_out:
@@ -69,7 +69,7 @@ with col_out:
     if st.button("EXECUTAR ANÁLISE SUPREMA"):
         if user_input:
             with st.spinner("Nexus processando bases globais..."):
-                time.sleep(random.uniform(0.5, 1.5)) # Delay leve para estabilidade
+                time.sleep(random.uniform(0.5, 1.5))
                 try:
                     with DDGS() as ddgs:
                         search = [r['body'] for r in ddgs.text(f"melhores práticas: {user_input}", max_results=2)]
@@ -83,13 +83,20 @@ with col_out:
         else:
             st.error("Digite algo para começar!")
 
-    # DOWNLOAD CORRIGIDO
+    # NOVA FUNÇÃO: SELETOR DE FORMATO E DOWNLOAD
     if 'last_result' in st.session_state:
+        st.divider()
+        st.subheader("💾 Opções de Download")
+        formato = st.selectbox("Escolha o formato do arquivo:", [".py", ".js", ".html", ".txt", ".sql", ".css"])
+        
+        # Mapeamento de Mime Types para cada formato
+        mimes = {".py": "text/x-python", ".js": "text/javascript", ".html": "text/html", ".txt": "text/plain", ".sql": "text/x-sql", ".css": "text/css"}
+        
         st.download_button(
-            label="📥 BAIXAR CÓDIGO FONTE",
+            label=f"📥 BAIXAR COMO {formato.upper()}",
             data=st.session_state['last_result'],
-            file_name="nexus_output.py",
-            mime="text/x-python"
+            file_name=f"nexus_output{formato}",
+            mime=mimes[formato]
         )
 
 # --- CHAT PRO ---
