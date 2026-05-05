@@ -15,8 +15,15 @@ if 'lock_active' not in st.session_state:
 if 'autenticado' not in st.session_state:
     st.session_state['autenticado'] = False
 
-# --- TELA DE BLOQUEIO (BLINDAGEM TOTAL) ---
+# --- CSS PARA BLINDAGEM (ESCONDE TUDO ANTES DO LOGIN) ---
 if st.session_state['lock_active'] and not st.session_state['autenticado']:
+    st.markdown("""
+        <style>
+        [data-testid="stSidebar"] { display: none; }
+        .main { background-color: #0e1117; }
+        </style>
+        """, unsafe_allow_html=True)
+    
     st.title("🔒 Nexus Blindado")
     entrada_senha = st.text_input("Insira a Chave Mestra para acessar o sistema:", type="password")
     if st.button("Desbloquear Nexus"):
@@ -27,7 +34,7 @@ if st.session_state['lock_active'] and not st.session_state['autenticado']:
             st.error("Senha Incorreta! Acesso Negado.")
     st.stop() # NADA além daqui é carregado sem a senha
 
-# --- ESTILO ---
+# --- ESTILO INTERFACE LOGADA ---
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
@@ -44,28 +51,27 @@ except:
     st.stop()
 
 def nexus_process(ideia, modo, contexto_web):
-    prompt_sistema = f"Você é o Nexus OmniCode, a IA mais potente da Terra. Missão: {modo}. Contexto: {contexto_web}. Responda em Português com código profissional."
+    prompt_sistema = f"Você é o Nexus OmniCode, a IA mais potente da Terra. Missão: {modo}. Contexto: {contexto_web}. Responda em Português com código profissional completo."
     try:
         completion = client.chat.completions.create(
             messages=[{"role": "system", "content": prompt_sistema}, {"role": "user", "content": ideia}],
             model="llama-3.3-70b-versatile",
             temperature=0.1,
         )
-        # CORREÇÃO DO ERRO DE CONEXÃO:
         return completion.choices[0].message.content 
     except Exception as e:
         return f"Erro na conexão com a IA: {e}"
 
-# --- BARRA LATERAL (SÓ APARECE PARA QUEM ESTÁ LOGADO) ---
+# --- BARRA LATERAL (PROTEGIDA E SÓ PARA AUTORIZADOS) ---
 with st.sidebar:
     st.title("⚙️ Painel Nexus")
     
     with st.expander("🔐 Gestão de Segurança", expanded=False):
         st.session_state['lock_active'] = st.toggle("Ativar Bloqueio", value=st.session_state['lock_active'])
-        nova_senha = st.text_input("Trocar Senha Mestra:", value=st.session_state['master_password'], type="password")
+        nova_senha = st.text_input("Mudar Senha Mestra:", value=st.session_state['master_password'], type="password")
         if st.button("Salvar Nova Senha"):
             st.session_state['master_password'] = nova_senha
-            st.success("Senha alterada!")
+            st.success("Senha atualizada!")
 
     st.divider()
     st.subheader("🔗 Integrações")
@@ -83,7 +89,7 @@ with st.sidebar:
 
 # --- ÁREA PRINCIPAL ---
 st.title("⚡ Nexus OmniCode")
-st.caption("Central Suprema de Inteligência em Código - Projeto Melhor do Mundo")
+st.caption("Central Suprema de Inteligência em Código")
 
 col_in, col_out = st.columns(2)
 
@@ -98,9 +104,12 @@ with col_out:
         if user_input:
             with st.spinner("Nexus emulando humano e processando..."):
                 time.sleep(random.uniform(1.0, 2.0))
-                with DDGS() as ddgs:
-                    search = [r['body'] for r in ddgs.text(f"melhores práticas: {user_input}", max_results=2)]
-                    contexto = "\n".join(search)
+                try:
+                    with DDGS() as ddgs:
+                        search = [r['body'] for r in ddgs.text(f"melhores práticas: {user_input}", max_results=2)]
+                        contexto = "\n".join(search)
+                except:
+                    contexto = "Base interna ativa."
                 
                 resultado = nexus_process(user_input, modo, contexto)
                 st.session_state['last_result'] = resultado
@@ -108,12 +117,13 @@ with col_out:
         else:
             st.error("Digite algo para o Nexus processar!")
 
+    # BOTÃO DE DOWNLOAD (CORRIGIDO)
     if 'last_result' in st.session_state:
         st.download_button(
             label="📥 BAIXAR SOLUÇÃO AGORA",
             data=st.session_state['last_result'],
             file_name="nexus_output.py",
-            mime="text/plain"
+            mime="text/x-python"
         )
 
 # --- CHAT PRO ---
