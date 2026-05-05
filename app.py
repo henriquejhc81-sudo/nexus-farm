@@ -23,24 +23,25 @@ except:
     st.stop()
 
 def nexus_process(ideia, modo, contexto_web):
-    prompt_sistema = f"Você é o Nexus OmniCode, a IA mais potente da Terra. Missão: {modo}. Contexto: {contexto_web}. Responda em Português com código profissional completo."
+    prompt_sistema = f"Você é o Nexus OmniCode. Missão: {modo}. Contexto: {contexto_web}. Responda em Português com código profissional completo."
     try:
         completion = client.chat.completions.create(
             messages=[{"role": "system", "content": prompt_sistema}, {"role": "user", "content": ideia}],
             model="llama-3.3-70b-versatile",
             temperature=0.1,
         )
-        return completion.choices.message.content 
+        # CORREÇÃO DEFINITIVA DO ERRO DE CONEXÃO:
+        return completion.choices[0].message.content 
     except Exception as e:
         return f"Erro na conexão com a IA: {e}"
 
 # --- BARRA LATERAL ---
 with st.sidebar:
     st.title("⚙️ Painel Nexus")
-    st.caption("Projeto Melhor do Mundo")
+    st.caption("Central de Automação Global")
     
     st.divider()
-    st.subheader("🔗 Integrações")
+    st.subheader("🔗 Integrações Ativas")
     for app in ["GitLab", "Bitbucket", "Azure", "Gitea", "SourceForge", "FastAPI"]:
         st.toggle(app, value=True)
     
@@ -55,7 +56,7 @@ with st.sidebar:
 
 # --- ÁREA PRINCIPAL ---
 st.title("⚡ Nexus OmniCode")
-st.caption("Central Suprema de Inteligência em Código - Versão Multi-Formato")
+st.caption("A Central Suprema de Inteligência em Código - Versão Multi-Formato")
 
 col_in, col_out = st.columns(2)
 
@@ -68,11 +69,11 @@ with col_out:
     st.subheader("🚀 Resultado da IA")
     if st.button("EXECUTAR ANÁLISE SUPREMA"):
         if user_input:
-            with st.spinner("Nexus processando bases globais..."):
+            with st.spinner("Nexus simulando humano e processando bases globais..."):
                 time.sleep(random.uniform(0.5, 1.5))
                 try:
                     with DDGS() as ddgs:
-                        search = [r['body'] for r in ddgs.text(f"melhores práticas: {user_input}", max_results=2)]
+                        search = [r['body'] for r in ddgs.text(f"melhores práticas para {user_input}", max_results=2)]
                         contexto = "\n".join(search)
                 except:
                     contexto = "Usando inteligência interna."
@@ -81,21 +82,20 @@ with col_out:
                 st.session_state['last_result'] = resultado
                 st.markdown(resultado)
         else:
-            st.error("Digite algo para começar!")
+            st.error("O Nexus precisa de dados para começar!")
 
-    # NOVA FUNÇÃO: SELETOR DE FORMATO E DOWNLOAD
+    # SELETOR DE FORMATO E DOWNLOAD (Sua nova ideia implementada!)
     if 'last_result' in st.session_state:
         st.divider()
         st.subheader("💾 Opções de Download")
         formato = st.selectbox("Escolha o formato do arquivo:", [".py", ".js", ".html", ".txt", ".sql", ".css"])
         
-        # Mapeamento de Mime Types para cada formato
         mimes = {".py": "text/x-python", ".js": "text/javascript", ".html": "text/html", ".txt": "text/plain", ".sql": "text/x-sql", ".css": "text/css"}
         
         st.download_button(
             label=f"📥 BAIXAR COMO {formato.upper()}",
             data=st.session_state['last_result'],
-            file_name=f"nexus_output{formato}",
+            file_name=f"nexus_solucao{formato}",
             mime=mimes[formato]
         )
 
