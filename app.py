@@ -24,7 +24,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- MOTOR GHOST AI COM INJEÇÃO DE DNA ---
+# --- MOTOR GHOST AI COM INJEÇÃO DE DNA E CORREÇÃO DE ATRIBUTO ---
 def nexus_inception_brain(prompt, modo, contexto, dna_ativo):
     try:
         client = Groq(api_key=st.secrets["GROQ_API_KEY"])
@@ -35,37 +35,31 @@ def nexus_inception_brain(prompt, modo, contexto, dna_ativo):
         try:
             time.sleep(random.uniform(0.5, 1.5)) 
             
-            # Diretriz de Injeção de DNA
             dna_prompt = ""
             if dna_ativo:
                 dna_prompt = """
                 INJEÇÃO DE DNA NEXUS ATIVA:
-                Todo código gerado deve conter internamente:
-                1. Módulos de Motor Neural (Orquestração Multi-IA).
-                2. Tecnologia Ghost AI (Invisible Interaction & Auto-Healing).
-                3. Blindagem de Segurança (Logs, Sanitização SQL/XSS, Snyk Logic).
-                4. Interface Cyber-Sentinel (Live Preview funcional).
-                O código deve ser uma mini-versão do Nexus Sentinel.
+                Implemente obrigatoriamente no código gerado:
+                1. Motor Neural (Orquestração Multi-IA).
+                2. Tecnologia Ghost AI (Invisible & Auto-Healing).
+                3. Segurança Blindada (Logs, Sanitização SQL/XSS, Snyk).
+                4. Interface Cyber-Sentinel (HTML/CSS Neon).
                 """
 
-            prompt_sistema = f"""
-            Você é o Nexus Sentinel 5.7 'Inception'. 
-            MISSÃO: {modo}. {dna_prompt}
-            CONDIÇÕES GHOST: Invisibilidade total e resposta Human-Mimic.
-            CONTEXTO: {contexto}.
-            """
+            prompt_sistema = f"Você é o Nexus Sentinel 5.7. MISSÃO: {modo}. {dna_prompt} CONTEXTO: {contexto}."
             
             completion = client.chat.completions.create(
                 messages=[{"role": "system", "content": prompt_sistema}, {"role": "user", "content": prompt}],
                 model="llama-3.3-70b-versatile",
                 temperature=0.2,
             )
-            return completion.choices.message.content
+            # CORREÇÃO DEFINITIVA DO ERRO 'list' object has no attribute 'message'
+            return completion.choices[0].message.content
             
         except Exception as e:
             if "429" in str(e):
                 wait = (attempt + 1) * 8
-                st.warning(f"🛡️ Auto-Healing em curso... Reconectando rota em {wait}s")
+                st.warning(f"🛡️ Auto-Healing em curso... Reconectando em {wait}s")
                 time.sleep(wait)
             else:
                 return f"Falha no Motor: {e}"
@@ -76,9 +70,8 @@ with st.sidebar:
     st.title("🛡️ NEXUS SENTINEL")
     st.caption("v5.7 | INCEPTION DNA")
     
-    # NOVO BOTÃO DE INJEÇÃO DE DNA
     with st.expander("🧬 DNA Tecnológico", expanded=True):
-        dna_ativo = st.toggle("Injetar DNA Nexus", value=True, help="Insere Motor Neural, Ghost AI e Segurança em todo projeto criado.")
+        dna_ativo = st.toggle("Injetar DNA Nexus", value=True)
         st.toggle("Human-Mimic Engine", value=True)
         st.toggle("Invisible Protocol", value=True)
 
@@ -97,27 +90,23 @@ with st.sidebar:
 
 # --- ÁREA PRINCIPAL ---
 st.title("⚡ Nexus Sentinel v5.7")
-st.markdown(f"""
-<div class='status-box'>
-    <b>DNA NEXUS:</b> {'ATIVO' if dna_ativo else 'DESATIVADO'} | <b>GHOST MODE:</b> LIGADO | <b>SISTEMA:</b> INCEPTION
-</div>
-""", unsafe_allow_html=True)
+st.markdown(f"<div class='status-box'><b>DNA:</b> {'ATIVO' if dna_ativo else 'OFF'} | <b>GHOST:</b> LIGADO | <b>SISTEMA:</b> INCEPTION</div>", unsafe_allow_html=True)
 
 col_in, col_out = st.columns([1, 1.2])
 
 with col_in:
     st.subheader("📥 Missão Sniper")
-    user_input = st.text_area("Descreva o projeto (O DNA será injetado automaticamente):", height=300)
+    user_input = st.text_area("Descreva o projeto (DNA injetado automaticamente):", height=300)
     upload = st.file_uploader("Upload de Contexto", accept_multiple_files=True)
 
 with col_out:
     st.subheader("🚀 Resposta Inception")
     if st.button("ATIVAR NEXUS SENTINEL"):
         if user_input:
-            with st.spinner("Injetando DNA Nexus e processando de forma invisível..."):
+            with st.spinner("Injetando DNA Nexus de forma invisível..."):
                 try:
                     with DDGS() as ddgs:
-                        busca = [r['body'] for r in ddgs.text(f"high level software architecture: {user_input}", max_results=3)]
+                        busca = [r['body'] for r in ddgs.text(f"high level architecture: {user_input}", max_results=2)]
                         contexto = "\n".join(busca)
                 except:
                     contexto = "Base interna ativa."
@@ -140,12 +129,12 @@ with col_out:
 
         st.divider()
         ext = st.selectbox("Exportar como:", [".html", ".py", ".docx", ".txt"])
-        st.download_button(label=f"📥 BAIXAR PROJETO COM DNA ({ext})", data=res, file_name=f"nexus_inception_project{ext}")
+        st.download_button(label=f"📥 BAIXAR PROJETO ({ext})", data=res, file_name=f"nexus_inception_project{ext}")
 
 # --- CHAT ---
 st.divider()
-st.subheader("💬 Nexus Ghost Chat (LLM)")
+st.subheader("💬 Nexus Ghost Chat")
 chat_input = st.text_input("Dúvida técnica?")
 if chat_input and 'last_result' in st.session_state:
     with st.chat_message("assistant"):
-        st.markdown(nexus_inception_brain(f"Sobre este projeto: {st.session_state['last_result']}. Responda: {chat_input}", "Chat Support", "", dna_ativo))
+        st.markdown(nexus_inception_brain(f"Sobre este projeto: {st.session_state['last_result']}. Pergunta: {chat_input}", "Chat Support", "", dna_ativo))
