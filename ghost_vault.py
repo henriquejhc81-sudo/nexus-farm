@@ -1,14 +1,36 @@
-# [ARQUIVO: ghost_vault.py]
-from cryptography.fernet import Fernet
+import json
+import os
+from datetime import datetime
 
-def gerar_chave_mestra():
-    chave = Fernet.generate_key()
-    with open("nexus_prime.key", "wb") as key_file:
-        key_file.write(chave)
-    print("✅ Chave Mestra 'nexus_prime.key' gerada com sucesso.")
+ARQUIVO_COFRE = 'vault_data.json'
 
-def carregar_chave():
-    return open("nexus_prime.key", "rb").read()
+def carregar_cofre():
+    # Se o cofre não existir, cria um novo com $10.000 fictícios
+    if not os.path.exists(ARQUIVO_COFRE):
+        cofre_inicial = {
+            "saldo_USDT": 10000.0,
+            "operacoes_abertas": {}, # Ex: {"BTC": {"preco_compra": 60000, "qtd": 0.01}}
+            "historico": []
+        }
+        salvar_cofre(cofre_inicial)
+        return cofre_inicial
+    
+    with open(ARQUIVO_COFRE, 'r') as f:
+        return json.load(f)
 
-if __name__ == "__main__":
-    gerar_chave_mestra() # Execute uma vez para gerar sua chave
+def salvar_cofre(dados):
+    with open(ARQUIVO_COFRE, 'w') as f:
+        json.dump(dados, f, indent=4)
+
+def registrar_historico(ativo, tipo, preco, qtd, lucro_prejuizo=0):
+    cofre = carregar_cofre()
+    registro = {
+        "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "ativo": ativo,
+        "tipo": tipo, # 'COMPRA' ou 'VENDA'
+        "preco": preco,
+        "qtd": qtd,
+        "pnl_usdt": lucro_prejuizo
+    }
+    cofre['historico'].insert(0, registro) # Insere no começo da lista
+    salvar_cofre(cofre)
